@@ -19,11 +19,20 @@
         // For AWS Amplify deployment: Replace API_BASE_URL with your API Gateway URL
         // Example: 'https://abc123xyz.execute-api.us-west-2.amazonaws.com/prod'
         const API_CONFIG = {
-            // Local development (keep as empty string for relative paths)
-            BASE_URL: '',
+            // 🔧 CONFIGURATION: Update this with your API Gateway URL
+            // Get this from: AWS Console → API Gateway → Your API → Stages → prod → Invoke URL
+            API_GATEWAY_URL: 'https://YOUR-API-GATEWAY-ID.execute-api.YOUR-REGION.amazonaws.com/prod',
             
-            // Production (uncomment and update with your API Gateway URL after deployment)
-            // BASE_URL: 'https://your-api-gateway-id.execute-api.region.amazonaws.com/prod',
+            // Auto-detect environment and set BASE_URL accordingly
+            get BASE_URL() {
+                // Local development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    return ''; // Use relative paths for local Node.js server
+                }
+                
+                // Production on Amplify - use API Gateway
+                return this.API_GATEWAY_URL;
+            },
             
             // API Endpoints
             ENDPOINTS: {
@@ -39,8 +48,16 @@
 
         // Helper function to build full API URL
         function getApiUrl(endpoint) {
-            return API_CONFIG.BASE_URL + endpoint;
+            const fullUrl = API_CONFIG.BASE_URL + endpoint;
+            console.log(`[API] Calling: ${fullUrl}`);
+            return fullUrl;
         }
+        
+        // Log configuration on page load
+        console.log('[API] Configuration loaded:');
+        console.log(`  Environment: ${window.location.hostname}`);
+        console.log(`  BASE_URL: ${API_CONFIG.BASE_URL}`);
+        console.log(`  API Gateway: ${API_CONFIG.API_GATEWAY_URL}`);
     </script>
 
     <style>
