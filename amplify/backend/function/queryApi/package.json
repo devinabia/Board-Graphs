@@ -1,0 +1,12 @@
+{
+  "name": "query-api",
+  "version": "1.0.0",
+  "description": "Lambda function for ClickHouse query API",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^2.7.0",
+    "https-proxy-agent": "^7.0.6"
+  }
+}
+
+

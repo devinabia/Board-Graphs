@@ -1,0 +1,12 @@
+{
+  "name": "turnout-series-api",
+  "version": "1.0.0",
+  "description": "Lambda function for turnout series API",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^2.7.0",
+    "https-proxy-agent": "^7.0.6"
+  }
+}
+
+
