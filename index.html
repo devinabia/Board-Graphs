@@ -19,50 +19,72 @@
         // For AWS Amplify deployment: Replace API_BASE_URL with your API Gateway URL
         // Example: 'https://abc123xyz.execute-api.us-west-2.amazonaws.com/prod'
         const API_CONFIG = {
-            // 🔧 AMPLIFY BACKEND CONFIGURATION
-            // Your Amplify app URL - backend functions will be deployed here
-            AMPLIFY_APP_URL: 'https://main.d2jwaen2uj4ggz.amplifyapp.com',
+            // 🔧 AWS API Gateway Configuration (Deployed Lambda Functions)
+            // Each endpoint can have its own API Gateway URL
             
-            // Auto-detect environment and set BASE_URL accordingly
-            get BASE_URL() {
+            // Check if running locally
+            isLocal() {
                 const hostname = window.location.hostname;
-                
-                // Local development - use local Node.js server
-                if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                    return 'http://localhost:5005';
-                }
-                
-                // Production on Amplify - use Amplify backend functions on same domain
-                // APIs will be available at: https://main.d2jwaen2uj4ggz.amplifyapp.com/api/*
-                return ''; // Empty string = relative paths on Amplify domain
+                return hostname === 'localhost' || hostname === '127.0.0.1';
             },
             
-            // API Endpoints
+            // API Endpoints with full URLs
             ENDPOINTS: {
-                HELLO: '/api/hello',
-                TEST_CLICKHOUSE: '/api/test-clickhouse',
-                QUERY: '/api/query',
-                ELECTION_METRICS: '/api/election-metrics',
-                TOP_JURISDICTIONS: '/api/top-jurisdictions',
-                JURISDICTION_MAP: '/api/jurisdiction-map',
-                TURNOUT_SERIES: '/api/turnout-series'
+                // Election Metrics - Deployed Lambda
+                ELECTION_METRICS: {
+                    local: 'http://localhost:5005/api/election-metrics',
+                    production: 'https://yzemtcmwi6.execute-api.us-east-2.amazonaws.com/api/electionMetricsApi'
+                },
+                
+                // Top Jurisdictions - Deployed Lambda
+                TOP_JURISDICTIONS: {
+                    local: 'http://localhost:5005/api/top-jurisdictions',
+                    production: 'https://79f4zm5zg1.execute-api.us-east-2.amazonaws.com/api/topJurisdictionsApi'
+                },
+                
+                // Other endpoints - fallback to local for now
+                JURISDICTION_MAP: {
+                    local: 'http://localhost:5005/api/jurisdiction-map',
+                    production: 'http://localhost:5005/api/jurisdiction-map' // TODO: Update when deployed
+                },
+                
+                TURNOUT_SERIES: {
+                    local: 'http://localhost:5005/api/turnout-series',
+                    production: 'http://localhost:5005/api/turnout-series' // TODO: Update when deployed
+                },
+                
+                QUERY: {
+                    local: 'http://localhost:5005/api/query',
+                    production: 'http://localhost:5005/api/query' // TODO: Update when deployed
+                },
+                
+                TEST_CLICKHOUSE: {
+                    local: 'http://localhost:5005/api/test-clickhouse',
+                    production: 'http://localhost:5005/api/test-clickhouse' // TODO: Update when deployed
+                },
+                
+                HELLO: {
+                    local: 'http://localhost:5005/api/hello',
+                    production: 'http://localhost:5005/api/hello' // TODO: Update when deployed
+                }
             }
         };
 
-        // Helper function to build full API URL
-        function getApiUrl(endpoint) {
-            const fullUrl = API_CONFIG.BASE_URL + endpoint;
-            console.log(`[API] Calling: ${fullUrl}`);
-            return fullUrl;
+        // Helper function to get API URL based on environment
+        function getApiUrl(endpointConfig) {
+            const isLocal = API_CONFIG.isLocal();
+            const url = isLocal ? endpointConfig.local : endpointConfig.production;
+            console.log(`[API] ${isLocal ? 'LOCAL' : 'PROD'} → Calling: ${url}`);
+            return url;
         }
         
         // Log configuration on page load
         console.log('%c[API Configuration Loaded]', 'color: #2563eb; font-weight: bold; font-size: 14px');
         console.log(`  🌍 Environment: ${window.location.hostname}`);
-        console.log(`  📍 BASE_URL: ${API_CONFIG.BASE_URL || '(relative paths)'}`);
-        console.log(`  🚀 Amplify App: ${API_CONFIG.AMPLIFY_APP_URL}`);
+        console.log(`  💻 Mode: ${API_CONFIG.isLocal() ? 'LOCAL DEVELOPMENT' : 'PRODUCTION (AWS Lambda)'}`);
         console.log(`  📊 API Endpoints: ${Object.keys(API_CONFIG.ENDPOINTS).length} configured`);
-        console.log(`  ✅ APIs will call: ${API_CONFIG.BASE_URL || window.location.origin}/api/*`);
+        console.log(`  ✅ Election Metrics: ${API_CONFIG.isLocal() ? API_CONFIG.ENDPOINTS.ELECTION_METRICS.local : API_CONFIG.ENDPOINTS.ELECTION_METRICS.production}`);
+        console.log(`  ✅ Top Jurisdictions: ${API_CONFIG.isLocal() ? API_CONFIG.ENDPOINTS.TOP_JURISDICTIONS.local : API_CONFIG.ENDPOINTS.TOP_JURISDICTIONS.production}`);
     </script>
 
     <style>
