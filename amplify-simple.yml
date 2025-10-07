@@ -1,0 +1,21 @@
+version: 1
+frontend:
+  phases:
+    build:
+      commands:
+        - echo "Preparing static files for deployment..."
+        # Create public directory if it doesn't exist
+        - mkdir -p public
+        # Copy assets (suppress errors if already copied)
+        - if [ -d "assets" ]; then cp -r assets public/ 2>/dev/null || true; fi
+        - if [ -d "public/assets" ]; then echo "Assets already in public"; fi
+        # Copy HTML files
+        - if ls *.html 1> /dev/null 2>&1; then cp *.html public/ 2>/dev/null || true; fi
+        # Copy CSS files
+        - if ls *.css 1> /dev/null 2>&1; then cp *.css public/ 2>/dev/null || true; fi
+        - echo "Static files ready for deployment"
+  artifacts:
+    baseDirectory: public
+    files:
+      - '**/*'
+

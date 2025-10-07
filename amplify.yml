@@ -1,21 +1,16 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - npm ci --production
 frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        - npm install
     build:
       commands:
         - echo "Building static site..."
         - mkdir -p public
-        - cp -r assets public/
-        - cp *.html public/ || true
-        - cp *.css public/ || true
+        - cp -r assets public/ 2>/dev/null || echo "No assets directory"
+        - cp *.html public/ 2>/dev/null || echo "No HTML files"
+        - cp *.css public/ 2>/dev/null || echo "No CSS files"
   artifacts:
     baseDirectory: public
     files:

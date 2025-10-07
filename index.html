@@ -14,6 +14,35 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <script>
+        // 🔧 API Configuration
+        // For AWS Amplify deployment: Replace API_BASE_URL with your API Gateway URL
+        // Example: 'https://abc123xyz.execute-api.us-west-2.amazonaws.com/prod'
+        const API_CONFIG = {
+            // Local development (keep as empty string for relative paths)
+            BASE_URL: '',
+            
+            // Production (uncomment and update with your API Gateway URL after deployment)
+            // BASE_URL: 'https://your-api-gateway-id.execute-api.region.amazonaws.com/prod',
+            
+            // API Endpoints
+            ENDPOINTS: {
+                HELLO: '/api/hello',
+                TEST_CLICKHOUSE: '/api/test-clickhouse',
+                QUERY: '/api/query',
+                ELECTION_METRICS: '/api/election-metrics',
+                TOP_JURISDICTIONS: '/api/top-jurisdictions',
+                JURISDICTION_MAP: '/api/jurisdiction-map',
+                TURNOUT_SERIES: '/api/turnout-series'
+            }
+        };
+
+        // Helper function to build full API URL
+        function getApiUrl(endpoint) {
+            return API_CONFIG.BASE_URL + endpoint;
+        }
+    </script>
+
     <style>
         :root {
             --surface-0: #f9fafb;
@@ -284,7 +313,7 @@
     <header class="mb-8">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-6">
-                <img src="public/assets/amac-logo.png" alt="AMAC Logo" class="h-16 w-auto" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
+                <img src="/assets/amac-logo.png" alt="AMAC Logo" class="h-16 w-auto" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
                 <div class="border-l border-gray-200 pl-6">
                     <h1 class="text-2xl font-bold">Voter Analytics</h1>
                     <p class="text-xs text-gray-400">Last updated: April 2024</p>
@@ -447,7 +476,7 @@
             }
 
             try {
-              const res = await fetch('/api/jurisdiction-map', {
+              const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.JURISDICTION_MAP), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ election, jurisdiction })
@@ -500,7 +529,7 @@ console.log(data)
 
   try {
     // Load stats from backend
-    const res = await fetch('/api/jurisdiction-map', {
+    const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.JURISDICTION_MAP), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ election, jurisdiction })
@@ -700,7 +729,7 @@ console.log(data)
                       }
 
                       try {
-                        const res = await fetch('/api/jurisdiction-map', {
+                        const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.JURISDICTION_MAP), {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ election, jurisdiction })
@@ -768,7 +797,7 @@ console.log(data)
                   }
 
                  try {
-  const res = await fetch('/api/jurisdiction-map', {
+  const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.JURISDICTION_MAP), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ election, jurisdiction })
@@ -827,7 +856,7 @@ if (window.map && window.map.getSource("voter-data")) {
 
   try {
     // Load stats from backend
-    const res = await fetch('/api/jurisdiction-map', {
+    const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.JURISDICTION_MAP), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ election, jurisdiction })
@@ -1603,7 +1632,7 @@ map.setFilter(
 
    if (election === "Nov 2024" || election === "Aug 2024") {
      try {
-       const res = await fetch("/api/election-metrics", {
+       const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.ELECTION_METRICS), {
          method: "POST",
          headers: { "Content-Type": "application/json" },
          body: JSON.stringify({ election })
@@ -1640,7 +1669,7 @@ map.setFilter(
   // ✅ KPIs
   if (election === "Nov 2024" || election === "Aug 2024") {
     try {
-      const res = await fetch("/api/election-metrics", {
+      const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.ELECTION_METRICS), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ election })
@@ -1658,7 +1687,11 @@ map.setFilter(
 
   //  Top Jurisdictions
   try {
-    const res = await fetch(`/api/top-jurisdictions?election=${encodeURIComponent(election)}&mode=${mode}`);
+    const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.TOP_JURISDICTIONS), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ election })
+    });
     const jurisdictions = await res.json();
     console.log(jurisdictions)
     const container = document.querySelector("#top-jurisdictions");
@@ -1716,7 +1749,7 @@ async function refreshKPIs(election) {
   // ✅ Election KPIs
   if (election === "Nov 2024" || election === "Aug 2024") {
     try {
-      const res = await fetch("/api/election-metrics", {
+      const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.ELECTION_METRICS), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ election })
@@ -1736,7 +1769,7 @@ async function refreshKPIs(election) {
 
   // ✅ Top Jurisdictions (fetch once per election, store both count + turnout)
   try {
-    const res = await fetch("/api/top-jurisdictions", {
+    const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.TOP_JURISDICTIONS), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ election })
@@ -1840,7 +1873,7 @@ window.addEventListener("DOMContentLoaded", () => {
 <script>
     async function loadTurnoutSeries() {
    try {
-     const res = await fetch("/api/turnout-series");
+     const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.TURNOUT_SERIES));
      if (!res.ok) throw new Error(`HTTP ${res.status}`);
      const { labels, data } = await res.json();
 
@@ -1900,7 +1933,7 @@ window.addEventListener("DOMContentLoaded", () => {
 <script>
     async function loadJurisdictionMap2(election, jurisdiction) {
   try {
-    const res = await fetch("/api/jurisdiction-map", {
+    const res = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.JURISDICTION_MAP), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ election, jurisdiction }),

@@ -82,35 +82,43 @@ CLICKHOUSE_DATABASE=default
 
 ### Step 6: Update API URLs in Code
 
-Replace API calls in `public/index.html` and other HTML files:
+**Good News!** The HTML files are already configured with a centralized API configuration system.
+
+1. Open `public/index.html` (around line 23)
+2. Find the `API_CONFIG` section
+3. Update the `BASE_URL`:
 
 **Before:**
 ```javascript
-fetch('/api/election-metrics', { ... })
+const API_CONFIG = {
+    BASE_URL: '',  // Empty for local development
+    // ...
+};
 ```
 
 **After:**
 ```javascript
-const API_BASE = 'https://your-api-id.execute-api.us-west-2.amazonaws.com/prod';
-fetch(`${API_BASE}/api/election-metrics`, { ... })
-```
-
-Or create `public/config.js`:
-
-```javascript
-window.API_CONFIG = {
-  BASE_URL: 'https://your-api-id.execute-api.us-west-2.amazonaws.com/prod'
+const API_CONFIG = {
+    BASE_URL: 'https://your-api-id.execute-api.us-west-2.amazonaws.com/prod',  // Your API Gateway URL
+    // ...
 };
 ```
 
-Then in HTML:
-```html
-<script src="/config.js"></script>
-<script>
-  const API_BASE = window.API_CONFIG.BASE_URL;
-  // Use API_BASE in all fetch calls
-</script>
+**Example:**
+```javascript
+const API_CONFIG = {
+    BASE_URL: 'https://abc123xyz.execute-api.us-west-2.amazonaws.com/prod',
+    ENDPOINTS: {
+        HELLO: '/api/hello',
+        ELECTION_METRICS: '/api/election-metrics',
+        // ... rest stays the same
+    }
+};
 ```
+
+That's it! All API calls will automatically use the configured URL.
+
+📖 **See [API_CONFIGURATION_GUIDE.md](./API_CONFIGURATION_GUIDE.md) for detailed instructions**
 
 ### Step 7: Commit and Push
 
