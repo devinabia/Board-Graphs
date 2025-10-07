@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMAC Test Page</title>
+</head>
+<body>
+    <h1>AMAC Project Test</h1>
+    <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin: 10px 0;">
+        <h3>🚀 Local Development Setup:</h3>
+        <p><strong>To run the local server:</strong></p>
+        <ol>
+            <li>Open terminal in project directory</li>
+            <li>Run: <code>npm run dev</code> or <code>node server.js</code></li>
+            <li>Open: <a href="http://localhost:3000/test" target="_blank">http://localhost:3000/test</a></li>
+        </ol>
+        <p><strong>Current URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>Server Status:</strong> <span id="serverStatus">Checking...</span></p>
+    </div>
+    <p>Testing API endpoints:</p>
+    <button onclick="testAPI()">Test Hello API</button>
+    <button onclick="testClickHouse()">Test ClickHouse Connection</button>
+    <button onclick="testElectionMetrics()">Test Election Metrics</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Test the hello endpoint with GET request
+                console.log('Testing GET request to /api/hello');
+                const getResponse = await fetch('/api/hello', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!getResponse.ok) {
+                    throw new Error(`HTTP error! status: ${getResponse.status}`);
+                }
+                
+                const getData = await getResponse.json();
+                
+                // Test the hello endpoint with POST request
+                console.log('Testing POST request to /api/hello');
+                const postResponse = await fetch('/api/hello', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!postResponse.ok) {
+                    throw new Error(`HTTP error! status: ${postResponse.status}`);
+                }
+                
+                const postData = await postResponse.json();
+                
+                resultDiv.innerHTML = `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        <h3>GET Request Result:</h3>
+                        <pre>${JSON.stringify(getData, null, 2)}</pre>
+                    </div>
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        <h3>POST Request Result:</h3>
+                        <pre>${JSON.stringify(postData, null, 2)}</pre>
+                    </div>
+                    <p style="color: green; font-weight: bold;">✅ API Test Successful!</p>
+                `;
+            } catch (error) {
+                console.error('API Test Error:', error);
+                resultDiv.innerHTML = `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ff6b6b; border-radius: 5px; background-color: #ffe0e0;">
+                        <h3>❌ API Test Failed:</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Stack:</strong> ${error.stack}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testClickHouse() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing ClickHouse connection...';
+            
+            try {
+                console.log('Testing ClickHouse connection');
+                
+                const response = await fetch('/api/test-clickhouse', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div style="margin: 10px 0; padding: 10px; border: 1px solid #4CAF50; border-radius: 5px; background-color: #e8f5e8;">
+                            <h3>✅ ClickHouse Connection Successful!</h3>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                            <p><strong>ClickHouse Version:</strong> ${data.data.version}</p>
+                            <p><strong>Current Time:</strong> ${data.data.current_time}</p>
+                            <h4>Environment Variables Status:</h4>
+                            <ul>
+                                <li>CLICKHOUSE_URL: ${data.environment.hasUrl ? '✅ Set' : '❌ Missing'}</li>
+                                <li>CLICKHOUSE_USER: ${data.environment.hasUser ? '✅ Set' : '❌ Missing'}</li>
+                                <li>CLICKHOUSE_PASSWORD: ${data.environment.hasPassword ? '✅ Set' : '❌ Missing'}</li>
+                                <li>CLICKHOUSE_HOST: ${data.environment.hasHost ? '✅ Set' : '❌ Missing'}</li>
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="margin: 10px 0; padding: 10px; border: 1px solid #ff6b6b; border-radius: 5px; background-color: #ffe0e0;">
+                            <h3>❌ ClickHouse Connection Failed</h3>
+                            <p><strong>Error:</strong> ${data.error}</p>
+                            <p><strong>Details:</strong> ${data.details}</p>
+                            <h4>Environment Variables Status:</h4>
+                            <ul>
+                                <li>CLICKHOUSE_URL: ${data.environment.hasUrl ? '✅ Set' : '❌ Missing'}</li>
+                                <li>CLICKHOUSE_USER: ${data.environment.hasUser ? '✅ Set' : '❌ Missing'}</li>
+                                <li>CLICKHOUSE_PASSWORD: ${data.environment.hasPassword ? '✅ Set' : '❌ Missing'}</li>
+                                <li>CLICKHOUSE_HOST: ${data.environment.hasHost ? '✅ Set' : '❌ Missing'}</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('ClickHouse Test Error:', error);
+                resultDiv.innerHTML = `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ff6b6b; border-radius: 5px; background-color: #ffe0e0;">
+                        <h3>❌ ClickHouse Test Failed:</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Stack:</strong> ${error.stack}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testElectionMetrics() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing Election Metrics API...';
+            
+            try {
+                console.log('Testing Election Metrics API');
+                
+                const response = await fetch('/api/election-metrics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ election: 'Nov 2024' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    resultDiv.innerHTML = `
+                        <div style="margin: 10px 0; padding: 10px; border: 1px solid #ff6b6b; border-radius: 5px; background-color: #ffe0e0;">
+                            <h3>❌ Election Metrics API Error</h3>
+                            <p><strong>Error:</strong> ${data.error}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="margin: 10px 0; padding: 10px; border: 1px solid #4CAF50; border-radius: 5px; background-color: #e8f5e8;">
+                            <h3>✅ Election Metrics API Success!</h3>
+                            <p><strong>Data:</strong></p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Election Metrics Test Error:', error);
+                resultDiv.innerHTML = `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ff6b6b; border-radius: 5px; background-color: #ffe0e0;">
+                        <h3>❌ Election Metrics Test Failed:</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Stack:</strong> ${error.stack}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Check server status
+        async function checkServerStatus() {
+            const statusElement = document.getElementById('serverStatus');
+            try {
+                const response = await fetch('/api/hello');
+                if (response.ok) {
+                    statusElement.innerHTML = '<span style="color: green;">✅ Server Running</span>';
+                } else {
+                    statusElement.innerHTML = '<span style="color: orange;">⚠️ Server Responding with Error</span>';
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<span style="color: red;">❌ Server Not Running</span>';
+            }
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, ready to test API');
+            document.getElementById('currentUrl').textContent = window.location.href;
+            checkServerStatus();
+        });
+    </script>
+</body>
+</html>
