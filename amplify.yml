@@ -1,4 +1,13 @@
 version: 1
+# Backend configuration for Amplify Functions
+backend:
+  phases:
+    build:
+      commands:
+        - npm ci --production
+        - echo "Backend build completed"
+
+# Frontend configuration
 frontend:
   phases:
     preBuild:
@@ -11,6 +20,10 @@ frontend:
         - cp -r assets public/ 2>/dev/null || echo "No assets directory"
         - cp *.html public/ 2>/dev/null || echo "No HTML files"
         - cp *.css public/ 2>/dev/null || echo "No CSS files"
+        # Copy API handlers for serverless functions
+        - mkdir -p public/api
+        - cp api/*.js public/api/ 2>/dev/null || echo "No API files"
+        - cp lib/*.js public/lib/ 2>/dev/null || echo "No lib files"
   artifacts:
     baseDirectory: public
     files:
