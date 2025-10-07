@@ -1,0 +1,22 @@
+{
+  "name": "amac-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "npm run build:public && npm run build:functions",
+    "build:public": "mkdir -p public && cp -r assets public/ && cp *.html public/ && cp *.css public/",
+    "build:functions": "cd amplify/backend/function && for dir in */; do cd \"$dir\" && npm ci --production && cd ..; done",
+    "amplify:deploy": "amplify publish"
+  },
+  "dependencies": {
+    "@clickhouse/client": "^0.2.10",
+    "@clickhouse/client-web": "^1.12.1",
+    "https-proxy-agent": "^7.0.6",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
